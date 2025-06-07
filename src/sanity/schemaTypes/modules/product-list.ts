@@ -1,0 +1,85 @@
+import { defineField, defineType } from 'sanity'
+import { AiFillProduct } from 'react-icons/ai'
+import { getBlockText } from 'sanitypress-utils'
+
+export default defineType({
+	name: 'product-list',
+	title: 'Product list',
+	icon: AiFillProduct,
+	type: 'object',
+	groups: [
+		{ name: 'content', default: true },
+		{ name: 'filtering' },
+		{ name: 'options' },
+	],
+	fields: [
+		defineField({
+			name: 'options',
+			type: 'module-options',
+			group: 'options',
+		}),
+		defineField({
+			name: 'pretitle',
+			type: 'string',
+			group: 'content',
+		}),
+		defineField({
+			name: 'intro',
+			type: 'array',
+			of: [{ type: 'block' }],
+			group: 'content',
+		}),
+		defineField({
+			name: 'layout',
+			type: 'string',
+			options: {
+				list: ['grid', 'carousel'],
+				layout: 'radio',
+			},
+			initialValue: 'carousel',
+			group: 'options',
+		}),
+		defineField({
+			name: 'displayFilters',
+			title: 'Display category filter buttons',
+			description: 'Allows for on-page filtering of posts by category',
+			type: 'boolean',
+			initialValue: false,
+			group: 'filtering',
+			hidden: ({ parent }) => !!parent.filteredCategory,
+		}),
+		defineField({
+			name: 'limit',
+			title: 'Number of posts to show',
+			description: 'Leave empty to show all posts',
+			type: 'number',
+			initialValue: 6,
+			validation: (Rule) => Rule.min(1).integer(),
+			group: 'filtering',
+		}),
+		defineField({
+			name: 'filteredCategory',
+			title: 'Filter product by a category',
+			description: 'Leave empty to show all product',
+			type: 'reference',
+			to: [{ type: 'product.category' }],
+			group: 'filtering',
+		}),
+		defineField({
+			name: 'backgroundColor',
+			title: 'Background color',
+			description: 'If not set, the default background color will be used.',
+			type: 'string',
+			group: 'options',
+		}),
+	],
+	preview: {
+		select: {
+			intro: 'intro',
+		},
+		prepare: ({ intro }) => ({
+			title: getBlockText(intro),
+			subtitle: 'Product list',
+		}),
+	},
+})
