@@ -44,17 +44,17 @@ export default function FormBuyNow({
 		const now = new Date()
 		const day = String(now.getDate()).padStart(2, '0')
 		const month = String(now.getMonth() + 1).padStart(2, '0')
-		const year = String(now.getFullYear()).slice(-2) // 2 số cuối của năm
+		const year = String(now.getFullYear()).slice(-2) // 2 last numbers of the year
 
 		const datePart = `${year}${month}${day}`
-		const random = Math.floor(1000 + Math.random() * 9000) // Random 4 số
+		const random = Math.floor(1000 + Math.random() * 9000) // Random 4 numbers
 
 		return `DH${datePart}-${random}`
 	}
 
 	const onSubmit = async (values: FormValues) => {
 		const orderId = generateOrderId()
-		// Danh sách các key cần có trong ordersite
+		// List of keys needed in ordersite
 		const requiredFields = [
 			'idorder',
 			'idordername',
@@ -65,14 +65,14 @@ export default function FormBuyNow({
 			'urlordergform',
 		]
 
-		// Kiểm tra thiếu field nào
+		// Check any field lack
 		const missingFields = requiredFields.filter(
 			(key) => !ordersite[key as keyof typeof ordersite],
 		)
 
 		if (missingFields.length > 0) {
-			console.error('Thiếu thông tin cài đặt form:', missingFields)
-			alert('Tạo đơn hàng không thành công. Vui lòng liên hệ với shop.')
+			console.error('Lack of installation information form:', missingFields)
+			alert('Create unsuccessful orders. Please contact the shop.')
 			return
 		}
 
@@ -96,9 +96,9 @@ export default function FormBuyNow({
 			})
 			Swal.fire({
 				icon: 'success',
-				title: '🎉 CHÚC MỪNG BẠN ĐÃ ĐẶT HÀNG THÀNH CÔNG',
-				html: 'Nếu không nhận được email xác nhận đơn hàng, vui lòng kiểm tra hộp thư rác hoặc spam hoặc liên hệ với shop để được hỗ trợ.',
-				confirmButtonText: 'Đóng',
+				title: '🎉 Congratulations on successfully ordering',
+				html: 'If you do not receive an order confirmation email, please check the spam or spam or contact the shop for assistance.',
+				confirmButtonText: 'Close!',
 				customClass: {
 					popup: 'rounded-xl p-6',
 					title: 'text-xl font-bold text-green-700',
@@ -113,8 +113,8 @@ export default function FormBuyNow({
 				option2: values.option2,
 			})
 		} catch (error) {
-			console.error('Gửi thất bại:', error)
-			alert('Gửi thất bại.')
+			console.error('Send failure:', error)
+			alert('Send failure.')
 		}
 	}
 	const idorder = generateOrderId()
@@ -130,9 +130,9 @@ export default function FormBuyNow({
 						className="hidden w-full rounded-xl bg-gray-100 p-2 font-semibold text-gray-700"
 					/>
 					<input
-						{...register('name', { required: 'Vui lòng nhập họ tên' })}
+						{...register('name', { required: 'Please enter full name' })}
 						className="border-global-style w-full rounded-xl bg-white p-4 max-md:p-2"
-						placeholder="Nhập họ và tên"
+						placeholder="Enter the full name"
 					/>
 					{errors.name && (
 						<p className="text-sm text-red-500">{errors.name.message}</p>
@@ -141,9 +141,11 @@ export default function FormBuyNow({
 
 				<div>
 					<input
-						{...register('phone', { required: 'Vui lòng nhập số điện thoại' })}
+						{...register('phone', {
+							required: 'Please enter the phone number please',
+						})}
 						className="border-global-style w-full rounded-xl bg-white p-4 max-md:p-2"
-						placeholder="Nhập số điện thoại"
+						placeholder="Enter the phone number"
 					/>
 					{errors.phone && (
 						<p className="text-sm text-red-500">{errors.phone.message}</p>
@@ -153,14 +155,14 @@ export default function FormBuyNow({
 				<div>
 					<input
 						{...register('email', {
-							required: 'Vui lòng nhập email',
+							required: 'Please enter Email',
 							pattern: {
 								value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
-								message: 'Email không hợp lệ',
+								message: 'Invalid email',
 							},
 						})}
 						className="border-global-style w-full rounded-xl bg-white p-4 max-md:p-2"
-						placeholder="Nhập email"
+						placeholder="Enter email"
 					/>
 					{errors.email?.message && (
 						<p className="text-sm text-red-500">
@@ -171,9 +173,9 @@ export default function FormBuyNow({
 
 				<div>
 					<textarea
-						{...register('address', { required: 'Vui lòng nhập địa chỉ' })}
+						{...register('address', { required: 'Please enter the address' })}
 						className="border-global-style w-full rounded-xl bg-white p-4 max-md:p-2"
-						placeholder="Nhập địa chỉ"
+						placeholder="Enter the address"
 					/>
 					{errors.address && (
 						<p className="text-sm text-red-500">{errors.address.message}</p>
@@ -182,7 +184,7 @@ export default function FormBuyNow({
 
 				{option1.length > 0 && (
 					<div>
-						<p className="mb-2 font-semibold">Lựa chọn:</p>
+						<p className="mb-2 font-semibold">Select:</p>
 						<div className="space-y-2">
 							{option1.map((opt, idx) => (
 								<label
@@ -204,7 +206,7 @@ export default function FormBuyNow({
 
 				{option2.length > 0 && (
 					<div>
-						<p className="mb-2 font-semibold">Lựa chọn:</p>
+						<p className="mb-2 font-semibold">Select:</p>
 						<div className="space-y-2">
 							{option2.map((opt, idx) => (
 								<label
@@ -228,7 +230,7 @@ export default function FormBuyNow({
 					type="submit"
 					className="action rounded-xl px-6 py-3 text-base font-bold whitespace-nowrap uppercase shadow transition duration-300"
 				>
-					Đặt hàng ngay
+					Order Now
 				</button>
 			</form>
 		</>

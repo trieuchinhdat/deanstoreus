@@ -24,17 +24,19 @@ import Admonition from './RichtextModule/Admonition'
 export default function ImageList({
 	assets,
 	layout = 'grid',
-	columnsdesktop,
-	columnsmobile,
+	columns,
 	autoplay,
+	fullscreen = false,
+	bordered = true,
 	lightbox,
 	tiers,
 }: {
 	assets: Sanity.Img[]
 	layout?: 'grid' | 'carousel' | 'product'
-	columnsdesktop?: number
-	columnsmobile?: number
+	columns?: any
 	autoplay?: boolean
+	fullscreen?: boolean
+	bordered?: boolean
 	lightbox?: boolean
 	tiers?: Sanity.Pricing
 }) {
@@ -63,73 +65,80 @@ export default function ImageList({
 	}
 	if (!assets?.length) return null
 	return (
-		<section className={cn('section section-image-list space-y-8')}>
-			<div className="container">
-				{/* Grid layout */}
-				{layout === 'grid' && (
-					<div
-						className={[
-							'layout-grid grid gap-2',
-							gridColsMap[columnsmobile || 1],
-							`md:${gridColsMap[columnsdesktop || 2]}`,
-							`lg:${gridColsMap[columnsdesktop || 2]}`,
-						].join(' ')}
-					>
-						{assets.map((block, blockIdx) => {
-							const image = (
-								<ResponsiveImg
-									img={block}
-									className="max-h-fold size-full object-cover"
-									width={2400}
-									draggable={false}
-								/>
-							)
-
-							const handleClick = () => {
-								if (lightbox) {
-									setIndex(blockIdx)
-									setOpen(true)
-								}
-							}
-
-							const wrapperClass = [
-								'overflow-hidden rounded-xl shadow',
-								lightbox ? 'cursor-pointer' : '',
-							].join(' ')
-
-							return (
-								<div
-									key={blockIdx}
-									className={wrapperClass}
-									onClick={handleClick}
-								>
-									{lightbox || !block?.url ? (
-										image
-									) : (
-										<Link href={block.url}>{image}</Link>
-									)}
-								</div>
-							)
-						})}
-
-						{lightbox && (
-							<Lightbox
-								open={open}
-								close={() => setOpen(false)}
-								slides={slides}
-								index={index}
-								on={{ view: ({ index }) => setIndex(index) }}
-								plugins={[Zoom]}
-								carousel={{ finite: true }}
-								zoom={{ maxZoomPixelRatio: 2, zoomInMultiplier: 1.5 }}
-								controller={{ closeOnBackdropClick: true }}
+		<section
+			className={cn(
+				fullscreen
+					? 'grid overflow-hidden *:col-span-full *:row-span-full'
+					: 'section section-image-list space-y-8',
+			)}
+		>
+			{/* Grid layout */}
+			{layout === 'grid' && (
+				<div
+					className={[
+						'layout-grid grid gap-2',
+						gridColsMap[columns?.mobile || 1],
+						`md:${gridColsMap[columns?.desktop || 2]}`,
+						`lg:${gridColsMap[columns?.desktop || 2]}`,
+					].join(' ')}
+				>
+					{assets.map((block, blockIdx) => {
+						const image = (
+							<ResponsiveImg
+								img={block}
+								className="max-h-fold size-full object-cover"
+								width={2400}
+								draggable={false}
 							/>
-						)}
-					</div>
-				)}
+						)
 
-				{/* Carousel layout */}
-				{layout === 'carousel' && (
+						const handleClick = () => {
+							if (lightbox) {
+								setIndex(blockIdx)
+								setOpen(true)
+							}
+						}
+
+						const wrapperClass = [
+							'overflow-hidden shadow',
+							lightbox ? 'cursor-pointer' : '',
+							bordered ? 'rounded-xl' : '',
+						].join(' ')
+
+						return (
+							<div
+								key={blockIdx}
+								className={wrapperClass}
+								onClick={handleClick}
+							>
+								{lightbox || !block?.url ? (
+									image
+								) : (
+									<Link href={block.url}>{image}</Link>
+								)}
+							</div>
+						)
+					})}
+
+					{lightbox && (
+						<Lightbox
+							open={open}
+							close={() => setOpen(false)}
+							slides={slides}
+							index={index}
+							on={{ view: ({ index }) => setIndex(index) }}
+							plugins={[Zoom]}
+							carousel={{ finite: true }}
+							zoom={{ maxZoomPixelRatio: 2, zoomInMultiplier: 1.5 }}
+							controller={{ closeOnBackdropClick: true }}
+						/>
+					)}
+				</div>
+			)}
+
+			{/* Carousel layout */}
+			{layout === 'carousel' && (
+				<div className="layout-carousel w-full">
 					<Swiper
 						modules={[Autoplay, Navigation]}
 						slidesPerView="auto"
@@ -143,15 +152,18 @@ export default function ImageList({
 						})}
 						speed={1000}
 						breakpoints={{
-							0: { slidesPerView: columnsmobile || 1, spaceBetween: 10 },
-							768: { slidesPerView: columnsmobile || 1 },
-							1024: { slidesPerView: columnsdesktop || 2 },
+							0: { slidesPerView: columns?.mobile || 1, spaceBetween: 10 },
+							768: { slidesPerView: columns?.mobile || 1 },
+							1024: { slidesPerView: columns?.desktop || 2 },
 						}}
 					>
 						{assets.map((block, blockIdx) => (
 							<SwiperSlide key={blockIdx}>
 								<div
-									className="cursor-pointer overflow-hidden rounded-xl shadow"
+									className={cn(
+										'cursor-pointer overflow-hidden shadow',
+										bordered && 'rounded-xl',
+									)}
 									onClick={() => {
 										if (lightbox) {
 											setIndex(blockIdx)
@@ -193,87 +205,93 @@ export default function ImageList({
 							/>
 						)}
 					</Swiper>
-				)}
+				</div>
+			)}
 
-				{/* Product gallery layout */}
-				{layout === 'product' && (
-					<div
-						className={cn(
-							'layout-product grid items-start gap-6',
-							tiers ? 'grid grid-cols-1 gap-6 lg:grid-cols-10' : 'grid-cols-1',
-						)}
-					>
-						{/* LEFT: Image Slideshow */}
-						<div className="lg:col-span-4">
-							<Swiper
-								modules={[Thumbs]}
-								thumbs={{ swiper: thumbsSwiper }}
-								className="w-full"
-							>
-								{assets.map((block, i) => (
-									<SwiperSlide key={`main-${i}`}>
-										<div
-											className="aspect-w-16 aspect-h-9 overflow-hidden rounded-xl shadow"
-											onClick={() => {
-												if (lightbox) {
-													setIndex(i)
-													setOpen(true)
-												}
-											}}
-										>
-											<ResponsiveImg
-												img={block}
-												className="h-full w-full object-cover"
-												width={2400}
-												draggable={false}
-											/>
-										</div>
-									</SwiperSlide>
-								))}
-								{lightbox && (
-									<Lightbox
-										open={open}
-										close={() => setOpen(false)}
-										slides={slides}
-										index={index}
-										on={{ view: ({ index }) => setIndex(index) }}
-										plugins={[Zoom]}
-										carousel={{ finite: true }}
-										zoom={{ maxZoomPixelRatio: 2, zoomInMultiplier: 1.5 }}
-										controller={{ closeOnBackdropClick: true }}
-									/>
-								)}
-							</Swiper>
-
-							<Swiper
-								onSwiper={setThumbsSwiper}
-								modules={[Thumbs]}
-								spaceBetween={10}
-								slidesPerView={4}
-								watchSlidesProgress
-								className="mt-2"
-							>
-								{assets.map((block, i) => (
-									<SwiperSlide key={`thumb-${i}`}>
-										<div
-											className={
-												styles.thumbSlide +
-												' aspect-w-16 aspect-h-9 overflow-hidden rounded-xl shadow'
+			{/* Product gallery layout */}
+			{layout === 'product' && (
+				<div
+					className={cn(
+						'layout-product grid items-start gap-6',
+						tiers ? 'grid grid-cols-1 gap-6 lg:grid-cols-10' : 'grid-cols-1',
+					)}
+				>
+					{/* LEFT: Image Slideshow */}
+					<div className="lg:col-span-4">
+						<Swiper
+							modules={[Thumbs]}
+							thumbs={{ swiper: thumbsSwiper }}
+							className="w-full"
+						>
+							{assets.map((block, i) => (
+								<SwiperSlide key={`main-${i}`}>
+									<div
+										className={cn(
+											'aspect-w-16 aspect-h-9 overflow-hidden shadow',
+											bordered && 'rounded-xl',
+										)}
+										onClick={() => {
+											if (lightbox) {
+												setIndex(i)
+												setOpen(true)
 											}
-										>
-											<ResponsiveImg
-												img={block}
-												className="h-full w-full object-cover"
-												width={400}
-												draggable={false}
-											/>
-										</div>
-									</SwiperSlide>
-								))}
-							</Swiper>
-						</div>
+										}}
+									>
+										<ResponsiveImg
+											img={block}
+											className="h-full w-full object-cover"
+											width={2400}
+											draggable={false}
+										/>
+									</div>
+								</SwiperSlide>
+							))}
+							{lightbox && (
+								<Lightbox
+									open={open}
+									close={() => setOpen(false)}
+									slides={slides}
+									index={index}
+									on={{ view: ({ index }) => setIndex(index) }}
+									plugins={[Zoom]}
+									carousel={{ finite: true }}
+									zoom={{ maxZoomPixelRatio: 2, zoomInMultiplier: 1.5 }}
+									controller={{ closeOnBackdropClick: true }}
+								/>
+							)}
+						</Swiper>
 
-						{/* RIGHT: Product Info */}
+						<Swiper
+							onSwiper={setThumbsSwiper}
+							modules={[Thumbs]}
+							spaceBetween={10}
+							slidesPerView={4}
+							watchSlidesProgress
+							className="mt-2"
+						>
+							{assets.map((block, i) => (
+								<SwiperSlide key={`thumb-${i}`}>
+									<div
+										className={cn(
+											styles.thumbSlide,
+											'aspect-w-16 aspect-h-9 overflow-hidden shadow',
+											bordered && 'rounded-xl',
+										)}
+									>
+										<ResponsiveImg
+											img={block}
+											className="h-full w-full object-cover"
+											width={800}
+											draggable={false}
+										/>
+									</div>
+								</SwiperSlide>
+							))}
+						</Swiper>
+					</div>
+
+					{/* RIGHT: Product Info */}
+					{tiers && (
 						<div className="space-y-4 lg:col-span-6">
 							{tiers && (
 								<span className="text-sm font-bold text-[#999] uppercase">
@@ -336,9 +354,9 @@ export default function ImageList({
 							)}
 							{tiers && <CTAList ctas={tiers.ctas} className="!mt-6" />}
 						</div>
-					</div>
-				)}
-			</div>
+					)}
+				</div>
+			)}
 		</section>
 	)
 }

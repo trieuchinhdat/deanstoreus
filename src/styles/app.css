@@ -3,12 +3,12 @@
 
 @theme {
 	--color-canvas: #fff;
-	--color-ink: #000;
-	--color-accent: #d09b68;
+	--color-ink: #4B5563;
+	--color-title-head: #F97316;
+	--color-accent: #1E3A8A;
 	--color-bg-btn: #d09b68;
-	--color-bg-section: #fff5eb;
-	--color-text-btn: #fff;
-	--color-title-head: #d09b68;
+	--color-bg-section: #F5F5F5;
+	--color-text-btn: #111827;
 	--max-height-fold: calc(100svh - var(--header-height));
 }
 

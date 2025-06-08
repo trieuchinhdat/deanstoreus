@@ -50,7 +50,7 @@ export default async function OrderForm({
 			{layout === 'form order' && (
 				<div
 					className={cn(
-						'section section-form mx-auto grid gap-8 rounded-xl',
+						'section section-form mx-auto grid gap-4 rounded-xl',
 						assetOnLeft && 'md:grid-cols-2',
 					)}
 					style={{

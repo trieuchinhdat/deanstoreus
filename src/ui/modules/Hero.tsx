@@ -6,6 +6,7 @@ import Pretitle from '@/ui/Pretitle'
 import CustomHTML from './CustomHTML'
 import Reputation from '@/ui/Reputation'
 import { cn } from '@/lib/utils'
+import Link from 'next/link'
 
 export default function Hero({
 	pretitle,
@@ -38,14 +39,24 @@ export default function Hero({
 			)}
 			{...moduleProps(props)}
 		>
-			{hasImage && (
-				<ResponsiveImg
-					img={asset}
-					className="max-h-fold size-full object-cover"
-					width={2400}
-					draggable={false}
-				/>
-			)}
+			{hasImage &&
+				(asset?.url ? (
+					<Link href={asset.url} rel="noopener noreferrer">
+						<ResponsiveImg
+							img={asset}
+							className="max-h-fold size-full object-cover"
+							width={2400}
+							draggable={false}
+						/>
+					</Link>
+				) : (
+					<ResponsiveImg
+						img={asset}
+						className="max-h-fold size-full object-cover"
+						width={2400}
+						draggable={false}
+					/>
+				))}
 
 			{content && (
 				<div className="section flex w-full flex-col text-balance">

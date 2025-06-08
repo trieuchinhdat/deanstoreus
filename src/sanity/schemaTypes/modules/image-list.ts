@@ -24,56 +24,30 @@ export default defineType({
 			validation: (Rule) => Rule.max(9),
 		}),
 		defineField({
-			name: 'columnsdesktop',
-			type: 'number',
-			title: 'Columns Desktop',
-			initialValue: 1,
-			description: 'Max 3 columns for grid, 4 for carousel',
+			name: 'columns',
+			title: 'Columns Settings',
+			type: 'object',
+			fields: [
+				{
+					name: 'desktop',
+					title: 'Desktop Columns',
+					type: 'number',
+					initialValue: 1,
+					validation: (Rule) => Rule.min(1).max(4).required(),
+				},
+				{
+					name: 'mobile',
+					title: 'Mobile Columns',
+					type: 'number',
+					initialValue: 1,
+					validation: (Rule) => Rule.min(1).max(4).required(),
+				},
+			],
+			options: {
+				columns: 2,
+			},
 			hidden: ({ parent }) =>
 				parent?.layout !== 'carousel' && parent?.layout !== 'grid',
-			validation: (Rule) =>
-				Rule.custom((value, context) => {
-					const parent = context?.parent as { layout?: string }
-					if (typeof value !== 'number') {
-						return 'Value is required and must be a number'
-					}
-					if (parent.layout === 'grid' && value > 3) {
-						return 'Grid layout supports up to 3 columns only'
-					}
-					if (parent.layout === 'carousel' && value > 4) {
-						return 'Carousel layout supports up to 4 columns only'
-					}
-					if (value < 1) {
-						return 'Must be at least 1 column'
-					}
-					return true
-				}),
-		}),
-		defineField({
-			name: 'columnsmobile',
-			type: 'number',
-			title: 'Columns Mobile',
-			initialValue: 1,
-			description: 'Max 3 columns for grid, 4 for carousel',
-			hidden: ({ parent }) =>
-				parent?.layout !== 'carousel' && parent?.layout !== 'grid',
-			validation: (Rule) =>
-				Rule.custom((value, context) => {
-					const parent = context?.parent as { layout?: string }
-					if (typeof value !== 'number') {
-						return 'Value is required and must be a number'
-					}
-					if (parent.layout === 'grid' && value > 3) {
-						return 'Grid layout supports up to 3 columns only'
-					}
-					if (parent.layout === 'carousel' && value > 4) {
-						return 'Carousel layout supports up to 4 columns only'
-					}
-					if (value < 1) {
-						return 'Must be at least 1 column'
-					}
-					return true
-				}),
 		}),
 		defineField({
 			name: 'tiers',
@@ -89,6 +63,18 @@ export default defineType({
 			type: 'boolean',
 			initialValue: false,
 			hidden: ({ parent }) => parent?.layout !== 'carousel',
+		}),
+		defineField({
+			name: 'fullscreen',
+			title: 'Full Screen',
+			type: 'boolean',
+			initialValue: false,
+		}),
+		defineField({
+			name: 'bordered',
+			title: 'Bordered Images',
+			type: 'boolean',
+			initialValue: true,
 		}),
 		defineField({
 			name: 'lightbox',

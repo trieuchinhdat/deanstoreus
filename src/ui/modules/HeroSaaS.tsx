@@ -7,6 +7,7 @@ import Reputation from '@/ui/Reputation'
 import CTAList from '@/ui/CTAList'
 import { ResponsiveImg } from '@/ui/Img'
 import { cn } from '@/lib/utils'
+import Link from 'next/link'
 
 export default function HeroSaaS({
 	pretitle,
@@ -59,7 +60,22 @@ export default function HeroSaaS({
 			{(() => {
 				switch (asset?._type) {
 					case 'img':
-						return (
+						return asset?.url ? (
+							<Link href={asset.url} target="_blank" rel="noopener noreferrer">
+								<ResponsiveImg
+									img={asset}
+									pictureProps={{
+										className: cn(
+											'anim-fade-to-t w-full rounded-xl overflow-hidden block [animation-duration:1s]',
+											assetFaded &&
+												'[mask:linear-gradient(to_top,transparent,#000_50%)]',
+										),
+									}}
+									width={2400}
+									draggable={false}
+								/>
+							</Link>
+						) : (
 							<ResponsiveImg
 								img={asset}
 								pictureProps={{
